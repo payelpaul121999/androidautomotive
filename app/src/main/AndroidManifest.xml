@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      Phase 1: this app can run on an AAOS emulator AND on a phone for UI checks.
+      android.hardware.type.automotive is required=false so a phone install is allowed.
+      On a real production AAOS APK this is usually required=true.
+      We are NOT using android.car / CarPropertyManager yet.
+    -->
+    <uses-feature
+        android:name="android.hardware.type.automotive"
+        android:required="false" />
+
+    <application
+        android:name=".DashboardApplication"
+        android:allowBackup="false"
+        android:icon="@drawable/ic_launcher_simple"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_launcher_simple"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MyCar">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:theme="@style/Theme.MyCar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
