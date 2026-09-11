@@ -1,7 +1,6 @@
 package com.mycar.dashboard.ui.shell
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,12 +11,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +30,7 @@ import com.mycar.dashboard.navigation.ui.NavigationViewModel
 import com.mycar.dashboard.ui.dashboard.DashboardScreen
 import com.mycar.dashboard.ui.dashboard.DashboardViewModel
 import com.mycar.dashboard.ui.theme.MyCarColors
+import com.mycar.dashboard.ux.dpadClickable
 
 enum class AppTab { Home, Maps, Vehicle, Phone, Media }
 
@@ -39,6 +43,10 @@ fun AutoCoreShell(
     val nav by navigationViewModel.nav.collectAsStateWithLifecycle()
     val saved by navigationViewModel.saved.collectAsStateWithLifecycle()
     val ux by navigationViewModel.ux.collectAsStateWithLifecycle()
+    val firstTabFocus = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        runCatching { firstTabFocus.requestFocus() }
+    }
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -81,7 +89,7 @@ fun AutoCoreShell(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            AppTab.entries.forEach { dest ->
+            AppTab.entries.forEachIndexed { index, dest ->
                 val selected = dest == tab
                 Text(
                     text = dest.name.uppercase(),
@@ -89,7 +97,8 @@ fun AutoCoreShell(
                     fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
                     fontSize = 16.sp,
                     modifier = Modifier
-                        .clickable { tab = dest }
+                        .then(if (index == 0) Modifier.focusRequester(firstTabFocus) else Modifier)
+                        .dpadClickable { tab = dest }
                         .padding(12.dp),
                 )
             }

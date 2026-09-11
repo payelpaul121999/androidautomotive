@@ -2,7 +2,6 @@ package com.mycar.dashboard.navigation.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,8 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -38,7 +35,9 @@ import com.mycar.dashboard.navigation.domain.arrow
 import com.mycar.dashboard.navigation.domain.formatDistance
 import com.mycar.dashboard.navigation.domain.formatEta
 import com.mycar.dashboard.ui.theme.MyCarColors
+import com.mycar.dashboard.ux.DpadButton
 import com.mycar.dashboard.ux.UxRestrictions
+import com.mycar.dashboard.ux.dpadClickable
 
 @Composable
 fun NavigationScreen(
@@ -137,7 +136,7 @@ fun NavigationScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
-                            .clickable { onSelectPlace(place) }
+                            .dpadClickable { onSelectPlace(place) }
                             .padding(12.dp),
                     ) {
                         Text(place.name, color = MyCarColors.amber, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
@@ -147,40 +146,40 @@ fun NavigationScreen(
             }
             Text("Vehicle speed $speedKmh km/h (feeds simulated GPS)", color = MyCarColors.muted, fontSize = 13.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                Button(
+                DpadButton(
                     onClick = onAccelerate,
                     modifier = Modifier.weight(1f).height(52.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MyCarColors.amber),
+                    containerColor = MyCarColors.amber,
                 ) { Text("SPEED +") }
-                Button(
+                DpadButton(
                     onClick = onBrake,
                     modifier = Modifier.weight(1f).height(52.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MyCarColors.danger),
+                    containerColor = MyCarColors.danger,
                 ) { Text("SPEED −") }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                Button(
+                DpadButton(
                     onClick = onStart,
                     enabled = nav.route != null && !nav.isNavigating,
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MyCarColors.mint),
+                    containerColor = MyCarColors.mint,
                 ) { Text("GO", fontWeight = FontWeight.Bold) }
-                Button(
+                DpadButton(
                     onClick = onReroute,
                     enabled = nav.isNavigating,
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MyCarColors.ice),
+                    containerColor = MyCarColors.ice,
                 ) { Text("REROUTE") }
-                Button(
+                DpadButton(
                     onClick = onStop,
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MyCarColors.danger),
+                    containerColor = MyCarColors.danger,
                 ) { Text("CANCEL") }
             }
         }
@@ -234,7 +233,7 @@ private fun QuickChip(label: String, onClick: () -> Unit) {
         fontWeight = FontWeight.Bold,
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick)
+            .dpadClickable(shape = RoundedCornerShape(20.dp), onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 10.dp),
     )
 }

@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +31,7 @@ import com.mycar.dashboard.navigation.domain.arrow
 import com.mycar.dashboard.navigation.ui.GuidanceStrip
 import com.mycar.dashboard.ui.theme.MyCarColors
 import com.mycar.dashboard.ui.theme.MyCarTheme
+import com.mycar.dashboard.ux.DpadButton
 
 @Composable
 fun DashboardScreen(
@@ -124,24 +123,18 @@ fun DashboardScreen(
             Spacer(Modifier.height(10.dp))
             GuidanceStrip(nav)
             Spacer(Modifier.height(10.dp))
-            Button(
+            DpadButton(
                 onClick = onAccelerate,
                 modifier = Modifier.fillMaxWidth().height(58.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MyCarColors.amber,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
+                containerColor = MyCarColors.amber,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
             ) { Text("ACCELERATE", fontSize = 18.sp, fontWeight = FontWeight.Bold) }
             Spacer(Modifier.height(8.dp))
-            Button(
+            DpadButton(
                 onClick = onBrake,
                 modifier = Modifier.fillMaxWidth().height(58.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MyCarColors.danger,
-                    contentColor = MaterialTheme.colorScheme.onBackground,
-                ),
+                containerColor = MyCarColors.danger,
+                contentColor = MaterialTheme.colorScheme.onBackground,
             ) { Text("BRAKE", fontSize = 18.sp, fontWeight = FontWeight.Bold) }
         }
     }

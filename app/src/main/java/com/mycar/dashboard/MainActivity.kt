@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.decorView.isFocusableInTouchMode = true
         CarLog.app("MainActivity onCreate — AutoCore shell")
         setContent {
             MyCarTheme {
