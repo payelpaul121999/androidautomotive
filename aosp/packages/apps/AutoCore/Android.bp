@@ -1,0 +1,11 @@
+// Reference only — not used by Gradle.
+// packages/apps/AutoCore/Android.bp
+android_app {
+    name: "AutoCoreInfotainment",
+    srcs: ["src/**/*.kt"],
+    resource_dirs: ["res"],
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    required: ["privapp_allowlist_com.mycar.dashboard.xml"],
+}

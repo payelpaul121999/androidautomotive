@@ -1,27 +1,38 @@
-# MY CAR — AAOS learning project
+# AutoCore Infotainment
 
-Phase **1 of 7**. Working Compose dashboard on a fake in-process vehicle repository.
+Android Automotive **learning / portfolio** project. It is an end-to-end **architecture** plus a working APK — not a claim that this APK *is* CarService or VHAL.
 
-This is **not** Car Service, **not** VHAL, and **not** `android.car`. Those come in later phases. Read [docs/PHASE1.md](docs/PHASE1.md) before changing architecture.
+**Current increment:** Phase 1 dashboard + **Maps & Navigation** (simulated map provider and GPS).
 
-## Run (Android Studio)
+Read [docs/01-architecture.md](docs/01-architecture.md) and [docs/13-navigation.md](docs/13-navigation.md). Phases: [docs/PHASES.md](docs/PHASES.md).
 
-1. Install **Android Studio** (Koala / Ladybug or newer) with SDK 35.
-2. File → Open → this folder (`jsonview` / project root).
-3. Create an emulator (either is valid for Phase 1):
-   - **Preferred:** Automotive system image (API 33/34, x86_64) via Device Manager → Automotive.
-   - **OK for UI only:** a landscape phone/tablet AVD, because `android.hardware.type.automotive` is `required="false"` in Phase 1.
-4. Run the `app` configuration.
+## What you can run today
 
-## Verify
+| You see | What it actually is |
+| -------- | ------------------- |
+| Speed / RPM / fuel / gear | `FakeVehicleRepository` in the **app process** |
+| Map, route, turn-by-turn | `SimulatedMapProvider` + Canvas (no Google Maps, no `LocationManager`) |
+| GPS movement | Playback along Kolkata → Howrah → Dankuni → Bardhaman, **speed from the fake vehicle** |
+| Search locked while moving | App `UxRestrictionsEvaluator` (not `CarUxRestrictionsManager`) |
 
-- Speed starts at `0 km/h`, gear `P`, RPM `0`, fuel `100%`.
-- **ACCELERATE** → speed `+5`, gear `D`, RPM rises, fuel drops 1%.
-- **BRAKE** at `0` stays `0` (never negative).
-- Logcat filter: `CAR_APP CAR_FAKE_REPO`
+## Run
 
-```bash
-adb logcat -s CAR_APP:D CAR_FAKE_REPO:D
+1. Android Studio, SDK 35, open this folder.
+2. AVD: Automotive landscape **or** a landscape tablet (`android.hardware.type.automotive` is `required="false"`).
+3. Run `app`.
+
+### Maps demo
+
+1. Tab **MAPS**.
+2. Search `Bardhaman` (only while parked).
+3. Tap the place → **GO**.
+4. **SPEED +** on the maps screen (or Home **ACCELERATE**). The car marker advances; search is disabled while driving.
+5. **REROUTE** simulates off-route; **CANCEL** stops.
+
+Logcat:
+
+```text
+adb logcat -s CAR_APP:D CAR_FAKE_REPO:D CAR_NAV:D CAR_MAP:D CAR_GPS:D CAR_UX:D CAR_POWER:D
 ```
 
 Unit tests:
@@ -30,19 +41,27 @@ Unit tests:
 ./gradlew :app:testDebugUnitTest
 ```
 
-On Windows PowerShell, if the wrapper JAR is missing, open the project in Android Studio once (it generates the wrapper) or run:
+## Module layout (this APK)
 
-```bash
-gradle wrapper
+```text
+app/
+  ui/shell          AutoCore landscape shell
+  ui/dashboard      Digital cockpit
+  navigation/       MapProvider, sim GPS, routing, Compose map
+  data/fake         Vehicle mock
+  ux/               Driving distraction policy
+  power/            In-process power enum
+  vehicle/          Property catalog (names, not AOSP IDs)
+aosp/               Android.bp sketches only
+docs/               Architecture + interview notes
 ```
 
-## What comes next (do not implement yet)
+## Not in this APK (and not pretended)
 
-| Phase | What |
-| ----- | ---- |
-| 2 | Dedicated vehicle simulator (still mock, richer physics) |
-| 3 | Real Car API / `CarPropertyManager` on AAOS |
-| 4 | Talk about real Car Service + VHAL (AOSP / privileged) |
-| 5 | GET / SET / SUBSCRIBE against real properties |
-| 6 | C++, Binder, AIDL where they actually live |
-| 7 | CAN / fake ECU behind VHAL |
+- `android.car` / `CarPropertyManager` / CarService
+- Vehicle HAL (HIDL or AIDL)
+- CAN / ECU C++ on the vehicle bus
+- Google Maps SDK / Directions API
+- Media3, Bluetooth, HVAC write path (tabs are placeholders)
+
+Those are documented so the next phases can plug in behind the same interfaces (`VehicleRepository`, `MapProvider`).

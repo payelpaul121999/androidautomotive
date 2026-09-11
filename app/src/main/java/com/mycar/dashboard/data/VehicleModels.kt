@@ -1,19 +1,28 @@
 package com.mycar.dashboard.data
 
+import kotlinx.coroutines.flow.StateFlow
+
 /**
- * Vehicle state the dashboard can render.
+ * Snapshot the dashboard and other features can render.
  *
- * These fields map conceptually to AAOS VehicleProperty IDs. Phase 1 does not
- * use the real property IDs — we only show names the UI understands.
- * Phase 3+ will map these to [android.car.VehiclePropertyIds].
+ * Fields map conceptually to AAOS properties. Phase 1/1b does not use real IDs.
  */
 data class VehicleUiState(
     val speedKmh: Int = 0,
     val fuelPercent: Int = 100,
+    val batteryPercent: Int = 82,
+    val engineTempC: Int = 90,
+    val outsideTempC: Int = 24,
     val cabinTempC: Int = 24,
+    val odometerKm: Int = 12480,
+    val rangeKm: Int = 420,
     val gear: Gear = Gear.P,
+    val parkingBrake: Boolean = true,
+    val seatbeltFastened: Boolean = true,
     val doorClosed: Boolean = true,
+    val lightsOn: Boolean = false,
     val rpm: Int = 0,
+    val mediaTitle: String = "Parked — no media",
 )
 
 enum class Gear {
@@ -24,16 +33,15 @@ enum class Gear {
 }
 
 /**
- * Application-facing contract.
+ * Application-facing vehicle contract.
  *
- * Today: implemented by [com.mycar.dashboard.data.fake.FakeVehicleRepository]
- * Later: implemented by a Car API / CarPropertyManager adapter.
+ * Today: [com.mycar.dashboard.data.fake.FakeVehicleRepository]
+ * Later: CarPropertyManager adapter.
  *
- * Keep UI and ViewModel talking only to this interface so we can swap the
- * backend without rewriting Compose.
+ * Keep UI off android.car types so unit tests run on the JVM.
  */
 interface VehicleRepository {
-    val vehicleState: kotlinx.coroutines.flow.StateFlow<VehicleUiState>
+    val vehicleState: StateFlow<VehicleUiState>
     fun accelerate()
     fun brake()
 }

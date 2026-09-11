@@ -2,10 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
-      Phase 1: this app can run on an AAOS emulator AND on a phone for UI checks.
-      android.hardware.type.automotive is required=false so a phone install is allowed.
-      On a real production AAOS APK this is usually required=true.
-      We are NOT using android.car / CarPropertyManager yet.
+      Phase 1b: dashboard + simulated maps. Runs on AAOS emulator or landscape phone.
+      automotive feature is required=false so a phone install is allowed.
+      We are NOT using android.car / CarPropertyManager / Google Maps.
     -->
     <uses-feature
         android:name="android.hardware.type.automotive"
@@ -22,6 +21,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:screenOrientation="sensorLandscape"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:theme="@style/Theme.MyCar">
             <intent-filter>

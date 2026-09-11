@@ -28,12 +28,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mycar.dashboard.data.Gear
 import com.mycar.dashboard.data.VehicleUiState
+import com.mycar.dashboard.navigation.domain.NavigationState
+import com.mycar.dashboard.navigation.domain.arrow
+import com.mycar.dashboard.navigation.ui.GuidanceStrip
 import com.mycar.dashboard.ui.theme.MyCarColors
 import com.mycar.dashboard.ui.theme.MyCarTheme
 
 @Composable
 fun DashboardScreen(
     state: VehicleUiState,
+    nav: NavigationState,
     tapCount: Int,
     lastAction: String,
     onAccelerate: () -> Unit,
@@ -43,55 +47,47 @@ fun DashboardScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp),
+            .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(1.1f)
                 .fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "MY CAR",
+                text = "AUTOCORE",
                 color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 22.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 6.sp,
             )
             Text(
+                text = "${state.outsideTempC}°C",
+                color = MyCarColors.ice,
+                fontSize = 16.sp,
+            )
+            Text(
                 text = "${state.speedKmh}",
                 color = MyCarColors.amber,
-                fontSize = 88.sp,
+                fontSize = 84.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Monospace,
             )
-            Text(
-                text = "km/h",
-                color = MyCarColors.muted,
-                fontSize = 18.sp,
-                letterSpacing = 3.sp,
-            )
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = lastAction,
-                color = MyCarColors.mint,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = "taps: $tapCount",
-                color = MyCarColors.muted,
-                fontSize = 14.sp,
-            )
+            Text("km/h", color = MyCarColors.muted, fontSize = 18.sp, letterSpacing = 3.sp)
+            Text("RPM ${state.rpm}", color = MyCarColors.ice, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(Modifier.height(8.dp))
+            Text(lastAction, color = MyCarColors.mint, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text("taps: $tapCount", color = MyCarColors.muted, fontSize = 13.sp)
         }
 
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(12.dp))
 
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(1.2f)
                 .fillMaxHeight(),
             verticalArrangement = Arrangement.Center,
         ) {
@@ -100,48 +96,53 @@ fun DashboardScreen(
                     .fillMaxWidth()
                     .border(1.dp, MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                StatusRow("Speed", "${state.speedKmh} km/h", MyCarColors.amber)
                 StatusRow("Fuel", "${state.fuelPercent}%", MyCarColors.mint)
-                StatusRow("Temp", "${state.cabinTempC}°C", MyCarColors.ice)
-                StatusRow("Gear", state.gear.name, MyCarColors.amber)
-                StatusRow("Door", if (state.doorClosed) "CLOSED" else "OPEN", MyCarColors.mint)
-                StatusRow("RPM", "${state.rpm}", MyCarColors.ice)
+                StatusRow("Battery", "${state.batteryPercent}%", MyCarColors.ice)
+                StatusRow("Range", "${state.rangeKm} km", MyCarColors.amber)
+                StatusRow("Engine", "${state.engineTempC}°C", MyCarColors.danger)
+                StatusRow("Odo", "${state.odometerKm} km", MyCarColors.muted)
+                StatusRow("Gear", "${state.gear.name}  ${if (state.parkingBrake) "P-BRAKE" else ""}".trim(), MyCarColors.amber)
+                StatusRow("Doors", if (state.doorClosed) "CLOSED" else "OPEN", MyCarColors.mint)
+                StatusRow("Belt", if (state.seatbeltFastened) "ON" else "OFF", MyCarColors.mint)
             }
-
-            Spacer(Modifier.height(16.dp))
-
-            Button(
-                onClick = onAccelerate,
+            Spacer(Modifier.height(10.dp))
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(64.dp),
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("♪ ${state.mediaTitle}", color = MyCarColors.ice, fontSize = 14.sp, modifier = Modifier.weight(1f))
+                val hint = nav.nextInstruction?.let { "${it.maneuver.arrow()} ${it.spokenText}" }
+                    ?: "No active route"
+                Text(hint, color = MyCarColors.amber, fontSize = 14.sp, modifier = Modifier.weight(1f))
+            }
+            Spacer(Modifier.height(10.dp))
+            GuidanceStrip(nav)
+            Spacer(Modifier.height(10.dp))
+            Button(
+                onClick = onAccelerate,
+                modifier = Modifier.fillMaxWidth().height(58.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MyCarColors.amber,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
-            ) {
-                Text("ACCELERATE", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            }
-
-            Spacer(Modifier.height(10.dp))
-
+            ) { Text("ACCELERATE", fontSize = 18.sp, fontWeight = FontWeight.Bold) }
+            Spacer(Modifier.height(8.dp))
             Button(
                 onClick = onBrake,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp),
+                modifier = Modifier.fillMaxWidth().height(58.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MyCarColors.danger,
                     contentColor = MaterialTheme.colorScheme.onBackground,
                 ),
-            ) {
-                Text("BRAKE", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            }
+            ) { Text("BRAKE", fontSize = 18.sp, fontWeight = FontWeight.Bold) }
         }
     }
 }
@@ -153,11 +154,11 @@ private fun StatusRow(label: String, value: String, valueColor: Color) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, color = MyCarColors.muted, fontSize = 18.sp)
+        Text(label, color = MyCarColors.muted, fontSize = 16.sp)
         Text(
             value,
             color = valueColor,
-            fontSize = 20.sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
             fontFamily = FontFamily.Monospace,
         )
@@ -176,7 +177,9 @@ private fun DashboardPreview() {
                 gear = Gear.D,
                 doorClosed = true,
                 rpm = 2200,
+                parkingBrake = false,
             ),
+            nav = NavigationState(),
             tapCount = 3,
             lastAction = "ACCELERATE → 72 km/h",
             onAccelerate = {},

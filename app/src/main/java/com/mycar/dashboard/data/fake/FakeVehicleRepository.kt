@@ -12,35 +12,8 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * =============================================================================
- * MOCK / LEARNING LAYER — Phase 1 only
- * =============================================================================
- *
- * This is NOT:
- *  - Android Automotive Car Service (`com.android.car`)
- *  - VHAL (Vehicle HAL, native vendor process)
- *  - android.car.Car / CarPropertyManager
- *  - AIDL Vehicle HAL (android.hardware.automotive.vehicle)
- *
- * This IS:
- *  - an in-process Kotlin object that holds fake numbers so the dashboard UI
- *    can be designed and clicked without AAOS privileges or AOSP.
- *
- * Process: same as the Dashboard APK
- * Language: Kotlin
- * Level: application
- *
- * Data movement today:
- *   Compose button → ViewModel → FakeVehicleRepository → StateFlow → Compose
- *
- * Real AAOS data movement (Phase 3+):
- *   App → Car API → Car Service → Binder → VHAL → vehicle / simulator
- *
- * Migration path:
- *  1. Keep [VehicleRepository] as the ViewModel dependency.
- *  2. Add a `CarPropertyVehicleRepository` that uses Car.createCar() and
- *     CarPropertyManager.
- *  3. Delete or disable this class once GET/SET/SUBSCRIBE work on an AAOS image.
+ * MOCK / LEARNING LAYER — not CarService, not VHAL, not android.car.
+ * Same process as the UI.
  */
 class FakeVehicleRepository : VehicleRepository {
 
@@ -54,11 +27,14 @@ class FakeVehicleRepository : VehicleRepository {
                 speedKmh = nextSpeed,
                 rpm = rpmForSpeed(nextSpeed),
                 gear = if (nextSpeed > 0) Gear.D else Gear.P,
+                parkingBrake = nextSpeed == 0,
                 fuelPercent = if (nextSpeed > current.speedKmh) {
                     max(0, current.fuelPercent - FUEL_DROP)
                 } else {
                     current.fuelPercent
                 },
+                rangeKm = max(0, (current.fuelPercent - if (nextSpeed > current.speedKmh) FUEL_DROP else 0) * 6),
+                mediaTitle = "Drive mix",
             )
             CarLog.fakeRepo(
                 "ACCELERATE mock: speed ${current.speedKmh} → ${next.speedKmh} km/h, " +
@@ -75,6 +51,8 @@ class FakeVehicleRepository : VehicleRepository {
                 speedKmh = nextSpeed,
                 rpm = rpmForSpeed(nextSpeed),
                 gear = if (nextSpeed == 0) Gear.P else Gear.D,
+                parkingBrake = nextSpeed == 0,
+                mediaTitle = if (nextSpeed == 0) "Parked — no media" else current.mediaTitle,
             )
             CarLog.fakeRepo(
                 "BRAKE mock: speed ${current.speedKmh} → ${next.speedKmh} km/h, rpm ${next.rpm}",

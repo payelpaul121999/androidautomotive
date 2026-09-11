@@ -1,5 +1,8 @@
 # Phase 1 — Compose dashboard + fake repository
 
+Phase **1b** added Maps & Navigation. Vehicle data is still fake. See [13-navigation.md](13-navigation.md).
+
+
 Stopped here on purpose. Do not add Car API, Car Service, VHAL, AIDL, or C++ until Phase 1 is running on a device/emulator and the interview questions below are answered.
 
 ---
